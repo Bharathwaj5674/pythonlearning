@@ -1,0 +1,4 @@
+2025-07-22 14:11:21,283 - INFO - Found credentials in shared credentials file: ~/.aws/credentials
+2025-07-22 14:11:23,501 - INFO - Connecting to Redshift...
+2025-07-22 14:11:24,441 - INFO - \u2705 Table created or already exists.
+2025-07-22 14:11:25,334 - INFO - Data successfully copied into Redshift.

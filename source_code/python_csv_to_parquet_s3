@@ -1,0 +1,70 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import boto3
+from botocore.exceptions import NoCredentialsError
+import os
+import logging
+from datetime import datetime
+
+# --- CONFIGURATION ---
+input_file = r"C:\Users\UNIQ\Desktop\python\sample_dups.csv"
+output_file = r"C:\Users\UNIQ\Desktop\python\sample_deduped.parquet"
+bucket_name = "bpythontest"
+s3_path = "parquet/sample_deduped.parquet"
+profile_name = "my-role"
+log_dir = r"C:\Users\UNIQ\pythonlearning\logs"
+# ----------------------
+
+# --- SETUP LOGGING ---
+os.makedirs(log_dir, exist_ok=True)
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+log_file = os.path.join(log_dir, f"log_{timestamp}.log")
+
+# Clear existing logging handlers (helps when running repeatedly in the same session)
+for handler in logging.root.handlers[:]:
+    logging.root.removeHandler(handler)
+
+logging.basicConfig(
+    filename=log_file,
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+# STEP 1: Load CSV and remove duplicates
+try:
+    logging.info("Reading CSV file: %s", input_file)
+    df = pd.read_csv(input_file, encoding="utf-8")
+
+    logging.info("Removing duplicates...")
+    df_deduped = df.drop_duplicates()
+
+    logging.info("Writing deduplicated data to Parquet file: %s", output_file)
+    df_deduped.to_parquet(output_file, index=False, engine="pyarrow")
+
+    print(f"✅ Duplicates removed and saved as Parquet: {output_file}")
+    logging.info("Successfully saved deduplicated Parquet file.")
+except Exception as e:
+    print(f"❌ Failed during deduplication/parquet conversion: {e}")
+    logging.error("Failed during deduplication/parquet conversion", exc_info=True)
+    exit()
+
+# STEP 2: Upload to S3
+try:
+    logging.info("Creating AWS session with profile: %s", profile_name)
+    session = boto3.Session(profile_name=profile_name)
+    s3 = session.client('s3')
+
+    logging.info("Uploading file to S3: s3://%s/%s", bucket_name, s3_path)
+    s3.upload_file(output_file, bucket_name, s3_path)
+
+    print(f"✅ Uploaded Parquet file to s3://{bucket_name}/{s3_path}")
+    logging.info("File successfully uploaded to S3.")
+except FileNotFoundError:
+    print("❌ Output file not found.")
+    logging.error("Output file not found.", exc_info=True)
+except NoCredentialsError:
+    print("❌ AWS credentials not found.")
+    logging.error("AWS credentials not found.", exc_info=True)
+except Exception as e:
+    print(f"❌ Upload error: {e}")
+    logging.error("Upload error", exc_info=True)

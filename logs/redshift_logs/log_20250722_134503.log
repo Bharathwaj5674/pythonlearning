@@ -1,0 +1,14 @@
+2025-07-22 13:45:04,176 - INFO - Found credentials in shared credentials file: ~/.aws/credentials
+2025-07-22 13:45:06,943 - INFO - Connecting to Redshift...
+2025-07-22 13:45:06,964 - ERROR - Redshift load failed
+Traceback (most recent call last):
+  File "c:\Users\UNIQ\pythonlearning\source_code\s3_to_redshift", line 68, in <module>
+    conn = psycopg2.connect(
+        dbname=redshift_config["dbname"],
+    ...<3 lines>...
+        host=redshift_config["host"]
+    )
+  File "C:\Users\UNIQ\AppData\Local\Programs\Python\Python313\Lib\site-packages\psycopg2\__init__.py", line 135, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+psycopg2.OperationalError: could not translate host name "your-redshift-cluster-name.region.redshift.amazonaws.com" to address: Name or service not known
+

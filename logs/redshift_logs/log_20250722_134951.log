@@ -1,0 +1,20 @@
+2025-07-22 13:49:51,486 - INFO - Found credentials in shared credentials file: ~/.aws/credentials
+2025-07-22 13:49:54,153 - INFO - Connecting to Redshift...
+2025-07-22 13:49:55,495 - INFO - \u2705 Table created or already exists.
+2025-07-22 13:50:01,378 - ERROR - Redshift load failed
+Traceback (most recent call last):
+  File "c:\Users\UNIQ\pythonlearning\source_code\s3_to_redshift", line 103, in <module>
+    cursor.execute(copy_stmt)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^
+psycopg2.errors.InternalError_: exception name : UnauthorizedException, error type : 138, message: Invalid IAM Role ARN: arn:aws:iam::123456789012:role/RedshiftS3AccessRole. Role needs to be owned by the same account with cluster, should retry : 0
+DETAIL:  
+  -----------------------------------------------
+  error:  exception name : UnauthorizedException, error type : 138, message: Invalid IAM Role ARN: arn:aws:iam::123456789012:role/RedshiftS3AccessRole. Role needs to be owned by the same account with cluster, should retry : 0
+  code:      30000
+  context:   
+  query:     1627731[child_sequence:4]
+  location:  xen_aws_credentials_mgr.cpp:785
+  process:   padbmaster [pid=1073774692]
+  -----------------------------------------------
+
+

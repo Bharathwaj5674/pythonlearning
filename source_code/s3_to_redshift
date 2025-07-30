@@ -1,0 +1,117 @@
+# -*- coding: utf-8 -*-
+import pandas as pd
+import boto3
+import os
+import logging
+from datetime import datetime
+import psycopg2
+from botocore.exceptions import NoCredentialsError
+
+# --- CONFIGURATION ---
+input_file = r"C:\Users\UNIQ\Desktop\python\sample_dups.csv"
+output_file = r"C:\Users\UNIQ\Desktop\python\sample_deduped.parquet"
+bucket_name = "bpythontest"
+s3_path = "parquet/sample_deduped.parquet"
+profile_name = "my-role"
+log_dir = r"C:\Users\UNIQ\pythonlearning\logs"
+table_name = "sample_deduped"
+
+
+# Redshift settings
+redshift_config = {
+    "host": "test-workgroup.562836382892.us-east-2.redshift-serverless.amazonaws.com",
+    "port": 5439,
+    "user": "bpasula",
+    "password": "Believer#001",
+    "dbname": "dev",
+    "schema" : "s3_to_redshift",
+    "iam_role": "arn:aws:iam::562836382892:role/myclirole"
+}
+
+# --- SETUP LOGGING ---
+os.makedirs(log_dir, exist_ok=True)
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+log_file = os.path.join(log_dir, f"redshift_load_log_{timestamp}.log")
+
+for handler in logging.root.handlers[:]:
+    logging.root.removeHandler(handler)
+
+logging.basicConfig(
+    filename=log_file,
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+# STEP 1: Load CSV and remove duplicates
+try:
+    df = pd.read_csv(input_file)
+    df_deduped = df.drop_duplicates()
+    df_deduped.to_parquet(output_file, index=False, engine="pyarrow")
+    print(f"✅ Duplicates removed and saved as Parquet: {output_file}")
+except Exception as e:
+    print(f"❌ Deduplication/parquet conversion failed: {e}")
+    logging.error("Deduplication/parquet conversion failed", exc_info=True)
+    exit()
+
+# STEP 2: Upload to S3
+try:
+    session = boto3.Session(profile_name=profile_name)
+    s3 = session.client('s3')
+    s3.upload_file(output_file, bucket_name, s3_path)
+    print(f"✅ Uploaded to s3://{bucket_name}/{s3_path}")
+except Exception as e:
+    print(f"❌ Upload to S3 failed: {e}")
+    logging.error("Upload to S3 failed", exc_info=True)
+    exit()
+
+# STEP 3: Load into Redshift
+try:
+    logging.info("Connecting to Redshift...")
+    conn = psycopg2.connect(
+        dbname=redshift_config["dbname"],
+        user=redshift_config["user"],
+        password=redshift_config["password"],
+        port=redshift_config["port"],
+        host=redshift_config["host"]
+    )
+    cursor = conn.cursor()
+
+    # Generate Redshift-compatible schema from dataframe
+    redshift_types = {
+        "object": "VARCHAR(255)",
+        "int64": "BIGINT",
+        "float64": "FLOAT",
+        "bool": "BOOLEAN",
+        "datetime64[ns]": "TIMESTAMP"
+    }
+
+    column_defs = []
+    for col in df_deduped.columns:
+        dtype = str(df_deduped[col].dtype)
+        redshift_type = redshift_types.get(dtype, "VARCHAR(255)")
+        column_defs.append(f"{col} {redshift_type}")
+        qualified_table = f"{redshift_config['schema']}.{table_name}"
+    create_stmt = f"CREATE TABLE IF NOT EXISTS {qualified_table} ({', '.join(column_defs)});"
+    cursor.execute(create_stmt)
+    conn.commit()
+    logging.info("✅ Table created or already exists.")
+
+    # COPY data from S3 into Redshift
+    copy_stmt = f"""
+        COPY {qualified_table}
+        FROM 's3://{bucket_name}/{s3_path}'
+        IAM_ROLE '{redshift_config["iam_role"]}'
+        FORMAT AS PARQUET;
+    """
+    cursor.execute(copy_stmt)
+    conn.commit()
+    print("✅ Data loaded into Redshift from S3.")
+    logging.info("Data successfully copied into Redshift.")
+
+except Exception as e:
+    print(f"❌ Redshift load failed: {e}")
+    logging.error("Redshift load failed", exc_info=True)
+finally:
+    if 'conn' in locals():
+        cursor.close()
+        conn.close()

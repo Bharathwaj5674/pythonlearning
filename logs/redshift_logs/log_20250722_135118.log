@@ -1,0 +1,20 @@
+2025-07-22 13:51:18,884 - INFO - Found credentials in shared credentials file: ~/.aws/credentials
+2025-07-22 13:51:24,691 - INFO - Connecting to Redshift...
+2025-07-22 13:51:25,979 - INFO - \u2705 Table created or already exists.
+2025-07-22 13:51:26,633 - ERROR - Redshift load failed
+Traceback (most recent call last):
+  File "c:\Users\UNIQ\pythonlearning\source_code\s3_to_redshift", line 103, in <module>
+    cursor.execute(copy_stmt)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^
+psycopg2.errors.InternalError_: exception name : UnauthorizedException, error type : 138, message: Not authorized to get credentials of role arn:aws:iam::562836382892:role/myclirole, should retry : 0
+DETAIL:  
+  -----------------------------------------------
+  error:  exception name : UnauthorizedException, error type : 138, message: Not authorized to get credentials of role arn:aws:iam::562836382892:role/myclirole, should retry : 0
+  code:      30000
+  context:   
+  query:     1627788[child_sequence:4]
+  location:  xen_aws_credentials_mgr.cpp:785
+  process:   padbmaster [pid=1073848446]
+  -----------------------------------------------
+
+

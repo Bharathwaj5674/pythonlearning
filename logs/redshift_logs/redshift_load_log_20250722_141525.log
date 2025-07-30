@@ -1,0 +1,8 @@
+2025-07-22 14:15:25,243 - INFO - Found credentials in shared credentials file: ~/.aws/credentials
+2025-07-22 14:15:28,142 - INFO - Connecting to Redshift...
+2025-07-22 14:15:29,139 - ERROR - Redshift load failed
+Traceback (most recent call last):
+  File "c:\Users\UNIQ\pythonlearning\source_code\s3_to_redshift", line 92, in <module>
+    qualified_table = f"{redshift_config['schema']}.{table_name}"
+                         ~~~~~~~~~~~~~~~^^^^^^^^^^
+KeyError: 'schema'

@@ -1,0 +1,54 @@
+2025-07-21 17:18:41,920 - INFO - Reading CSV file: C:\Users\UNIQ\Desktop\python\sample_dups.csv
+2025-07-21 17:18:41,937 - INFO - Removing duplicates...
+2025-07-21 17:18:41,954 - INFO - Writing deduplicated data to Parquet file: C:\Users\UNIQ\Desktop\python\sample_deduped.parquet
+2025-07-21 17:18:42,058 - INFO - Successfully saved deduplicated Parquet file.
+2025-07-21 17:18:42,058 - INFO - Creating AWS session with profile: my-role
+2025-07-21 17:18:42,152 - INFO - Found credentials in shared credentials file: ~/.aws/credentials
+2025-07-21 17:18:42,967 - INFO - Uploading file to S3: s3://bpythontest/dedups/sample_deduped.parquet
+2025-07-21 17:18:44,955 - INFO - File successfully uploaded to S3.
+2025-07-21 17:31:29,620 - INFO - Reading CSV file: C:\Users\UNIQ\Desktop\python\sample_dups.csv
+2025-07-21 17:31:29,639 - INFO - Removing duplicates...
+2025-07-21 17:31:29,663 - INFO - Writing deduplicated data to Parquet file: C:\Users\UNIQ\Desktop\pythons\sample_deduped.parquet
+2025-07-21 17:31:29,755 - ERROR - Failed during deduplication/parquet conversion
+Traceback (most recent call last):
+  File "c:\Users\UNIQ\pythonlearning\source_code\python_csv_to_parquet_s3", line 36, in <module>
+    df_deduped.to_parquet(output_file, index=False, engine="pyarrow")
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\UNIQ\AppData\Local\Programs\Python\Python313\Lib\site-packages\pandas\util\_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\UNIQ\AppData\Local\Programs\Python\Python313\Lib\site-packages\pandas\core\frame.py", line 3118, in to_parquet
+    return to_parquet(
+        self,
+    ...<6 lines>...
+        **kwargs,
+    )
+  File "C:\Users\UNIQ\AppData\Local\Programs\Python\Python313\Lib\site-packages\pandas\io\parquet.py", line 482, in to_parquet
+    impl.write(
+    ~~~~~~~~~~^
+        df,
+        ^^^
+    ...<6 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\UNIQ\AppData\Local\Programs\Python\Python313\Lib\site-packages\pandas\io\parquet.py", line 199, in write
+    path_or_handle, handles, filesystem = _get_path_or_handle(
+                                          ~~~~~~~~~~~~~~~~~~~^
+        path,
+        ^^^^^
+    ...<3 lines>...
+        is_dir=partition_cols is not None,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\UNIQ\AppData\Local\Programs\Python\Python313\Lib\site-packages\pandas\io\parquet.py", line 141, in _get_path_or_handle
+    handles = get_handle(
+        path_or_handle, mode, is_text=False, storage_options=storage_options
+    )
+  File "C:\Users\UNIQ\AppData\Local\Programs\Python\Python313\Lib\site-packages\pandas\io\common.py", line 749, in get_handle
+    check_parent_directory(str(handle))
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\UNIQ\AppData\Local\Programs\Python\Python313\Lib\site-packages\pandas\io\common.py", line 616, in check_parent_directory
+    raise OSError(rf"Cannot save file into a non-existent directory: '{parent}'")
+OSError: Cannot save file into a non-existent directory: 'C:\Users\UNIQ\Desktop\pythons'

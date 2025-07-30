@@ -1,0 +1,8 @@
+2025-07-21 17:35:50,287 - INFO - Reading CSV file: C:\Users\UNIQ\Desktop\python\sample_dups.csv
+2025-07-21 17:35:50,304 - INFO - Removing duplicates...
+2025-07-21 17:35:50,326 - INFO - Writing deduplicated data to Parquet file: C:\Users\UNIQ\Desktop\python\sample_deduped.parquet
+2025-07-21 17:35:50,446 - INFO - Successfully saved deduplicated Parquet file.
+2025-07-21 17:35:50,446 - INFO - Creating AWS session with profile: my-role
+2025-07-21 17:35:50,543 - INFO - Found credentials in shared credentials file: ~/.aws/credentials
+2025-07-21 17:35:50,846 - INFO - Uploading file to S3: s3://bpythontest/dedups/sample_deduped.parquet
+2025-07-21 17:35:52,969 - INFO - File successfully uploaded to S3.
